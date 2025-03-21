@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block title %}
+    Manage Scores
+{% endblock %}
+{% block content %}
+    <h1>Manage Scores</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Total Scored</th>
+                <th>TimeStamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject in subjects %}
+            <tr>
+                <td>{{score.id}}</td>
+                <td>{{ score.total_scored}}</td>
+                <td>{{subject.timestamp}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
