@@ -3,6 +3,7 @@ from flask import render_template, redirect, flash, url_for
 from app.forms import RegisterForm, LoginForm
 from app.models import User, Subject, Chapter, Quiz, Question, Score
 from flask_login import login_user, login_required, logout_user, current_user
+import os
 
 app = create_app()
 
@@ -15,13 +16,13 @@ def create_db():
     db.create_all()
 
     #create the admin admin@quiz.com
-    admin = User.query.filter_by(username="admin@quiz.com").first()
+    admin = User.query.filter_by(username=os.getenv('ADMIN_USERNAME')).first()
     if not admin:
         admin = User(
-            username="admin@quiz.com",
+            username=os.getenv('ADMIN_USERNAME'),
             fullname = "Quiz Master Admin"
             )
-        admin.set_password("admin123")
+        admin.set_password(os.getenv('ADMIN_PASSWORD'))
         db.session.add(admin)
         db.session.commit()
         print("Admin created!")
@@ -37,7 +38,7 @@ def home():
 def admin_login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username = "admin@quiz.com").first()
+        user = User.query.filter_by(username=os.getenv('ADMIN_USERNAME')).first()
         if user and user.username == form.username.data and user.check_password(form.password.data):
             login_user(user)
             flash("Admin logged in successfully", category= "success")
@@ -49,7 +50,7 @@ def admin_login():
 @app.route("/admin/dashboard")
 @login_required
 def admin_dashboard():
-    if current_user.username != "admin@quiz.com":
+    if current_user.username != os.getenv('ADMIN_USERNAME'):
         flash("You don't have permission to access this page", category="error")
         return redirect(url_for("home"))
     return render_template("admin/dashboard.html")
@@ -57,7 +58,7 @@ def admin_dashboard():
 @app.route("/admin/manage_subjects")
 @login_required
 def manage_subjects():
-    if current_user.username != "admin@quiz.com":
+    if current_user.username != os.getenv('ADMIN_USERNAME'):
         flash("You don't have permission to access this page", category="error")
         return redirect(url_for("home"))
     subjects = Subject.query.all()
@@ -66,7 +67,7 @@ def manage_subjects():
 @app.route("/admin/manage_chapters")
 @login_required
 def manage_chapters():
-    if current_user.username != "admin@quiz.com":
+    if current_user.username != os.getenv('ADMIN_USERNAME'):
         flash("You don't have permission to access this page", category="error")
         return redirect(url_for("home"))
     chapters = Chapter.query.all()
@@ -75,7 +76,7 @@ def manage_chapters():
 @app.route("/admin/manage_quizzes")
 @login_required
 def manage_quizzes():
-    if current_user.username != "admin@quiz.com":
+    if current_user.username != os.getenv('ADMIN_USERNAME'):
         flash("You don't have permission to access this page", category="error")
         return redirect(url_for("home"))
     quizzes = Quiz.query.all()
@@ -84,7 +85,7 @@ def manage_quizzes():
 @app.route("/admin/manage_questions")
 @login_required
 def manage_questions():
-    if current_user.username != "admin@quiz.com":
+    if current_user.username != os.getenv('ADMIN_USERNAME'):
         flash("You don't have permission to access this page", category="error")
         return redirect(url_for("home"))
     questions = Question.query.all()
@@ -93,7 +94,7 @@ def manage_questions():
 @app.route("/admin/manage_users")
 @login_required
 def manage_users():
-    if current_user.username != "admin@quiz.com":
+    if current_user.username != os.getenv('ADMIN_USERNAME'):
         flash("You don't have permission to access this page", category="error")
         return redirect(url_for("home"))
     users = User.query.all()
@@ -102,7 +103,7 @@ def manage_users():
 @app.route("/admin/manage_scores")
 @login_required
 def manage_scores():
-    if current_user.username != "admin@quiz.com":
+    if current_user.username != os.getenv('ADMIN_USERNAME'):
         flash("You don't have permission to access this page", category="error")
         return redirect(url_for("home"))
     scores = Score.query.all()
