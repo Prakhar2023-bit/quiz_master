@@ -1,9 +1,10 @@
-{% extends 'layout.html' %}
+{% extends 'admin/dashboard.html' %}
 {% block title %}
     Manage Scores
 {% endblock %}
-{% block content %}
-    <h1>Manage Scores</h1>
+{% block crud %}
+    <h2>Manage Scores</h2>
+    <a href="#">Add</a>
     <table>
         <thead>
             <tr>
@@ -18,6 +19,8 @@
                 <td>{{score.id}}</td>
                 <td>{{ score.total_scored}}</td>
                 <td>{{subject.timestamp}}</td>
+                <td><a href="#">Edit</a></td>
+                <td><a href="#">Delete</a></td>
             </tr>
             {% endfor %}
         </tbody>
