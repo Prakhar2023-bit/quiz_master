@@ -1,4 +1,4 @@
-{% extends 'admin/dashboard.html' %}
+{% extends 'admin/layout.html' %}
 {% block title %}
     Add quiz
 {% endblock %}
@@ -6,6 +6,17 @@
 <h2>Add Quiz</h2>
 <form method="post">
     {{form.hidden_tag()}}
+    <div>
+        {{form.name.label}}
+        {{form.name}}
+        {% if form.name.errors %}
+            <ul class="errors">
+                {% for error in form.name.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
     <div>
         {{form.date_of_quiz.label}}
         {{form.date_of_quiz}}
