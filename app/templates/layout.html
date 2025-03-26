@@ -64,6 +64,10 @@
     <div id="content">
       {% if current_user.is_authenticated %}
       Hi {{ current_user.fullname }}!
+      <ul>
+        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('select_quiz') }}">Select Quiz</a></li>
+      </ul>
       {% endif %}
         {% block content %}{% endblock %}
     </div>

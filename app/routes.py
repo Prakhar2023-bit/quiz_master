@@ -341,7 +341,7 @@ def login():
 @login_required
 def dashboard():
     quizzes = Quiz.query.all()
-    return render_template("dashboard.html", quizzes=quizzes)
+    return render_template("user/dashboard.html", quizzes=quizzes)
 
 @app.route("/quiz/<int:quiz_id>", methods=['GET', 'POST'])
 @login_required
@@ -354,20 +354,52 @@ def attempt_quiz(quiz_id):
             user_answer = request.form.get(f'question_{question.id}')
             if user_answer and int(user_answer) == question.correct_option:
                 score += 1
-        user_score = Score(
-            total_scored = score,
-            quiz_id = quiz_id,
-            user_id = current_user.id
-        )
-        db.session.add(user_score)
+        
+        user_score = Score.query.filter_by(
+            user_id = current_user.id,
+            quiz_id = quiz_id
+        ).first()
+        if user_score:
+            user_score.total_scored=score
+        else:
+            user_score = Score(
+                total_scored=score,
+                quiz_id=quiz_id,
+                user_id=current_user.id
+            )
+            db.session.add(user_score)
         db.session.commit()
         flash(f'Quiz completed! Your score: {score} / {len(questions)}', category="success")
         return redirect(url_for("quiz_results", quiz_id = quiz_id))
-    return render_template("attempt_quiz.html", quiz=quiz, questions = questions)
+    return render_template("user/attempt_quiz.html", quiz=quiz, questions = questions)
 
 @app.route("/quiz_results/<int:quiz_id>")
 @login_required
 def quiz_results(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
-    score = Score.query.filter_by(user_id=current_user.id, quiz_id = quiz_id).first()
-    return render_template("quiz_results.html", quiz=quiz, score=score)
+    score = Score.query.filter_by(
+        user_id=current_user.id, 
+        quiz_id=quiz_id
+    ).order_by(Score.id.desc()).first()
+    return render_template("user/quiz_results.html", quiz=quiz, score=score)
+
+@app.route("/select-quiz", methods = ['GET', 'POST'])
+@login_required
+def select_quiz():
+    subjects = Subject.query.all()
+    chapters = Chapter.query.all()
+    quizzes = Quiz.query.all()
+
+    if request.method == 'POST':
+        subject_id = request.form.get('subject_id')
+        chapter_id = request.form.get('chapter_id')
+    
+        if subject_id:
+            quizzes = Quiz.query.join(Chapter).filter(Chapter.subject_id== subject_id).all()
+        if chapter_id:
+            quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()    
+
+    return render_template("user/select-quiz.html",
+                           subjects=subjects,
+                           chapters=chapters,
+                           quizzes=quizzes)
