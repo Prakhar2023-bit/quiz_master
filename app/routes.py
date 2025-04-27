@@ -3,7 +3,6 @@ from flask import render_template, redirect, flash, url_for, request
 from app.forms import RegisterForm, LoginForm, SubjectForm, ChapterForm, QuizForm, QuestionForm
 from app.models import User, Subject, Chapter, Quiz, Question, Score
 from flask_login import login_user, login_required, logout_user, current_user
-from seed import seed_database
 import os
 
 app = create_app()
@@ -31,10 +30,6 @@ def create_db():
         print("Admin already exists!")
     print("database created!")
 
-@app.cli.command('db-seed')
-def seed_db():
-    seed_database()
-    print("Database seeded successfully")
 
 @app.route("/")
 def home():
@@ -49,18 +44,6 @@ def logout():
     return redirect(url_for('login'))
 
 #admin authentication routes
-@app.route("/admin/login",methods = ['GET','POST'])
-def admin_login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=os.getenv('ADMIN_USERNAME')).first()
-        if user and user.username == form.username.data and user.check_password(form.password.data):
-            login_user(user)
-            flash("Admin logged in successfully", category= "success")
-            return redirect(url_for("admin_dashboard"))
-        else:
-            flash("Invalid Username or Password", category="error")
-    return render_template("admin/login.html", form=form)
 
 @app.route("/admin/dashboard")
 @login_required
@@ -303,6 +286,17 @@ def add_question(quiz_id):
         return redirect(url_for("manage_quiz_questions", quiz_id = quiz_id))
      return render_template("admin/add_question.html", form=form, quiz_id=quiz_id)
 
+@app.route("/admin/delete_user/<int:id>", methods=['POST'])
+@login_required
+def delete_user(id):
+    if current_user.username != os.getenv('ADMIN_USERNAME'):
+        flash("You don't have permission to access this page", category="error")
+        return redirect(url_for("home"))
+    user = User.query.get_or_404(id)
+    db.session.delete(user)
+    db.session.commit()
+    flash("User deleted successsully!", category= "success")
+    return redirect(url_for("manage_users"))
 #user routes
 
 @app.route("/register", methods = ['GET', 'POST'])

@@ -65,7 +65,12 @@
       {% if current_user.is_authenticated %}
       Hi {{ current_user.fullname }}!
       <ul>
-        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        {% if current_user.username == 'admin@quiz.com' %}
+          <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+          <li><a href="{{ url_for('dashboard') }}">User Dashboard</a></li>
+        {%else%}
+          <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        {%endif%}
         <li><a href="{{ url_for('select_quiz') }}">Select Quiz</a></li>
       </ul>
       {% endif %}
